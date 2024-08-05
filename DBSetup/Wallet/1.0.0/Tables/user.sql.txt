@@ -1,0 +1,10 @@
+create table users
+(
+userid uuid default gen_random_uuid() not null
+constraint pk_userid
+primary key,
+userlogin varchar(20) not null,
+userpassword varchar(20) not null,
+username varchar(20) not null,
+usersurname varchar(20) not null,
+);
