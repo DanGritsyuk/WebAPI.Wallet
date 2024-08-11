@@ -5,7 +5,7 @@ namespace Wallet.DAL.Repository.Contracts
     public interface IUserRepository
     {
         Task AddAsync(User user);
-        Task<List<User>> GetAsync();
+        Task<List<User>> GetAllAsync();
         Task<User?> GetAsync(Guid id);
     }
 }

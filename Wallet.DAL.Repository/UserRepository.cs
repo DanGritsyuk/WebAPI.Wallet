@@ -14,50 +14,58 @@ namespace Wallet.DAL.Repository
             _logger = logger;
         }
 
-        public async Task AddAsync(User user)
-        {
-            try
-            {
-                var sql = "SELECT * FROM public.post_user(@_login, @_password, @_name, @_surname)";
-                var param = new
+        public async Task AddAsync(User user) =>
+            await ExecuteWithLoggingAsync("SELECT * FROM public.post_user(@_login, @_password, @_name, @_surname)",
+                new
                 {
                     _login = user.Login,
                     _password = user.Password,
                     _name = user.Name,
                     _surname = user.Surname
-                };
+                },
+                "Ошибка при сохранении юзера");
 
-                await ExecuteAsync(sql, param);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при сохранении юзера");
-                throw;
-            }
-        }
+        public async Task<List<User>> GetAllAsync() =>
+            await QueryWithLoggingAsync<User>("SELECT userid AS Id, userlogin AS Login, userpassword AS Password FROM public.users",
+                "Ошибка при получении списка пользователей");
 
-        public async Task<List<User>> GetAsync()
+        public async Task<User?> GetAsync(Guid id) =>
+            await GetUserAsync($"SELECT userid AS Id, userlogin AS Login, userpassword AS Password FROM public.users WHERE userid = {id}");
+
+        public async Task<User?> GetAsync(string login) =>
+            await GetUserAsync($"SELECT userid AS Id, userlogin AS Login, userpassword AS Password FROM public.users WHERE userlogin = {login}");
+
+        private async Task ExecuteWithLoggingAsync(string sql, object param, string errorMessage)
         {
             try
             {
-                var sql = "SELECT userid AS Id, userlogin AS Login, userpassword AS Password FROM public.users";
-
-                var users = await QueryAsync<User>(sql);
-                return users.ToList();
+                await ExecuteAsync(sql, param);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка при получении списка пользователей");
+                _logger.LogError(ex, errorMessage);
                 throw;
             }
         }
 
-        public async Task<User?> GetAsync(Guid id)
+        private async Task<List<T>> QueryWithLoggingAsync<T>(string sql, string errorMessage)
         {
             try
             {
-                var sql = $"SELECT userid AS Id, userlogin AS Login, userpassword AS Password FROM public.users WHERE userid = {id}";
+                var result = await QueryAsync<T>(sql);
+                return result.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, errorMessage);
+                throw;
+            }
+        }
 
+        private async Task<User?> GetUserAsync(string sql)
+        {
+            try
+            {
                 return await QuerySingleAsync<User>(sql);
             }
             catch (Exception ex)
