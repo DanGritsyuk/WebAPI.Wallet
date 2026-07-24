@@ -9,12 +9,12 @@ namespace Wallet.BLL.Logic.Notification
     public class NotificationLogic : INotificationLogic
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IKafkaProducer<Ignore, EmailServiceMessage> _kafkaProducer;
+        private readonly IKafkaProducer<EmailServiceMessage> _kafkaProducer;
         private readonly ILogger<NotificationLogic> _logger;
 
         public NotificationLogic(
             IHttpClientFactory httpClientFactory,
-            IKafkaProducer<Ignore, EmailServiceMessage> kafkaProducer,
+            IKafkaProducer<EmailServiceMessage> kafkaProducer,
             ILogger<NotificationLogic> logger)
         {
             _httpClientFactory = httpClientFactory;

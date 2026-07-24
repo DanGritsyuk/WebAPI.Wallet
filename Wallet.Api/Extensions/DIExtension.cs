@@ -20,13 +20,12 @@ namespace Wallet.Api.Extensions
             services.AddScoped<IUserLogic, UserLogic>();
             services.AddScoped<INotificationLogic, NotificationLogic>();
 
-            services.AddScoped<IKafkaProducer<Ignore, EmailServiceMessage>>(provider =>
+            services.AddScoped<IKafkaProducer<EmailServiceMessage>, KafkaProducer<EmailServiceMessage>>(provider =>
             {
-                var logger = provider.GetRequiredService<ILogger<KafkaProducer<Ignore, EmailServiceMessage>>>();
+                var logger = provider.GetRequiredService<ILogger<KafkaProducer<EmailServiceMessage>>>();
                 var configuration = provider.GetRequiredService<IConfiguration>();
                 var bootstrapServers = configuration.GetValue<string>("KafkaConfig:BootstrapServers");
-
-                return new KafkaProducer<Ignore, EmailServiceMessage>(logger, bootstrapServers);
+                return new KafkaProducer<EmailServiceMessage>(logger, bootstrapServers);
             });
 
             return services;
